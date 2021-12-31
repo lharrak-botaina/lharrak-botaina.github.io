@@ -1596,7 +1596,7 @@ a:focus {
 
 
 
-img , #imag-work{
+ #imag-work{
     width: 150px;
     height: 90;
 }
@@ -1611,3 +1611,4 @@ img , #imag-work{
 color: #f50909;
 box-shadow: 2px 2px 10px 2px rgb(214, 24, 24);
 }
+
