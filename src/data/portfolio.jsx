@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const ME = {
-  img :'/public/img/me.jpeg', // Swap this for your photo!
+  img: `${import.meta.env.BASE_URL}img/me.jpeg`,
   name: "Botaina lharrak",
   title: "Full-Stack Developer",
   tagline:

@@ -96,7 +96,7 @@ export default function About({ dark }) {
                 }}
               >
                 <img
-                  src="/img/me.jpeg"
+                  src={ME.img}
                   alt="Botaina Lharrak"
                   style={{
                     width: "100%",
