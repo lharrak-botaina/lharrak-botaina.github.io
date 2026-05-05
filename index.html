@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/portfolio2/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/portfolio2/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Botaina lharrak — Full-Stack Developer Portfolio" />
+    <meta name="theme-color" content="#0A0A0E" />
+
+    <!-- hreflang — bilingual portfolio (EN / ES) -->
+    <link rel="alternate" hreflang="en" href="/portfolio2/" />
+    <link rel="alternate" hreflang="es" href="/portfolio2/" />
+    <link rel="alternate" hreflang="x-default" href="/portfolio2/" />
+
+    <!-- Open Graph -->
+    <meta property="og:title"       content="Botaina lharrak — Full-Stack Developer" />
+    <meta property="og:description" content="Building scalable web applications at the intersection of clean code and thoughtful design." />
+    <meta property="og:type"        content="website" />
+
+    <title>Botaina lharrak — Full-Stack Developer</title>
+
+    <!-- Sync <html lang> with persisted/detected language before first paint -->
+    <script>
+      (function () {
+        var saved = localStorage.getItem("portfolio_lang");
+        var supported = ["en", "es"];
+        if (saved && supported.indexOf(saved) !== -1) {
+          document.documentElement.lang = saved;
+        } else {
+          var browser = (navigator.language || "en").slice(0, 2).toLowerCase();
+          document.documentElement.lang = supported.indexOf(browser) !== -1 ? browser : "en";
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/portfolio2/assets/index-B2zpy0jS.js"></script>
+    <link rel="stylesheet" crossorigin href="/portfolio2/assets/index-CC0VWL8M.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
