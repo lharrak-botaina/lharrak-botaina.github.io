@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Nav     from "./components/Nav";
 import Hero    from "./components/Hero";
 import About   from "./components/About";
@@ -6,8 +6,39 @@ import Projects from "./components/Projects";
 import Skills  from "./components/Skills";
 import Contact from "./components/Contact";
 import { ME }  from "./data/portfolio";
+import { LanguageProvider, useLanguage } from "./i18n/LanguageContext";
+
+function CursorGlow({ dark }) {
+  const [pos, setPos] = useState({ x: -1000, y: -1000 });
+  useEffect(() => {
+    const move = (e) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", move, { passive: true });
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
+  return (
+    <div
+      style={{
+        position: "fixed",
+        pointerEvents: "none",
+        zIndex: 0,
+        top: -350,
+        left: -350,
+        width: 700,
+        height: 700,
+        borderRadius: "50%",
+        background: dark
+          ? "radial-gradient(circle, rgba(123,116,80,0.07) 0%, transparent 60%)"
+          : "radial-gradient(circle, rgba(107,101,96,0.06) 0%, transparent 60%)",
+        transform: `translate(${pos.x}px, ${pos.y}px)`,
+        transition: "transform 0.28s ease",
+        willChange: "transform",
+      }}
+    />
+  );
+}
 
 function Footer({ dark }) {
+  const { t } = useLanguage();
   return (
     <footer
       style={{
@@ -28,7 +59,7 @@ function Footer({ dark }) {
           color: dark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
         }}
       >
-        © {new Date().getFullYear()} {ME.name} — Built with React + Vite
+        © {new Date().getFullYear()} {ME.name}
       </span>
 
       <button
@@ -40,16 +71,16 @@ function Footer({ dark }) {
           background: "none",
           border: "none",
           cursor: "pointer",
-          color: dark ? "#F59E0B" : "#B45309",
+          color: dark ? "#7b7450" : "#a39e85",
         }}
       >
-        ↑ Back to top
+        {t("footer.backToTop")}
       </button>
     </footer>
   );
 }
 
-export default function App() {
+function AppInner() {
   const [dark, setDark] = useState(true);
 
   return (
@@ -61,6 +92,7 @@ export default function App() {
         transition: "background 0.4s, color 0.4s",
       }}
     >
+      <CursorGlow dark={dark} />
       <Nav dark={dark} setDark={setDark} />
       <Hero    dark={dark} />
       <About   dark={dark} />
@@ -69,5 +101,13 @@ export default function App() {
       <Contact dark={dark} />
       <Footer  dark={dark} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppInner />
+    </LanguageProvider>
   );
 }

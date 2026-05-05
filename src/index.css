@@ -13,7 +13,7 @@ html {
 }
 
 ::selection {
-  background: #F59E0B33;
+  background: #7b745033;
 }
 
 body {
@@ -25,6 +25,21 @@ body {
 @keyframes lbFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% center; }
+  100% { background-position: 250% center; }
+}
+
+@keyframes shimmerBtn {
+  0%        { left: -70px; }
+  35%, 100% { left: calc(100% + 70px); }
 }
 
 /* ── Responsive helpers ─────────────────────────────────────────────────── */

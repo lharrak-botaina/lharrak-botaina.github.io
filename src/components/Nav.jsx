@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
 import useScrollSpy from "../hooks/useScrollSpy";
 import { accent } from "../data/portfolio";
+import { useLanguage } from "../i18n/LanguageContext";
 
-const LINKS = ["home", "about", "projects", "skills", "contact"];
+const LINK_IDS = ["home", "about", "projects", "skills", "contact"];
 
 export default function Nav({ dark, setDark }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const active = useScrollSpy(LINKS);
+  const [progress, setProgress] = useState(0);
+  const active = useScrollSpy(LINK_IDS);
   const ac = accent(dark);
+  const { lang, setLang, t } = useLanguage();
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
+    const h = () => {
+      setScrolled(window.scrollY > 40);
+      const total = document.body.scrollHeight - window.innerHeight;
+      setProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
+    };
     window.addEventListener("scroll", h, { passive: true });
     return () => window.removeEventListener("scroll", h);
   }, []);
@@ -60,7 +67,15 @@ export default function Nav({ dark, setDark }) {
           cursor: "pointer",
         }}
       >
-        AR
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 110" width="48" height="48" style={{ display: "block" }}>
+          <rect x="0" y="0" width="110" height="110" rx="18" fill="rgba(0,0,0,0.06)"/>
+          <rect x="1" y="1" width="108" height="108" rx="17" fill="none"
+                stroke="#a39e85" strokeWidth="1.5" opacity="0.5"/>
+          <path d="M30,18 L30,92 M30,18 A17,17 0 0 1 30,52
+                   M30,52 A20,20 0 0 1 30,92 M30,92 L80,92"
+                stroke="#7b7450" strokeWidth="8"
+                strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        </svg>
       </button>
 
       {/* Desktop links */}
@@ -68,10 +83,10 @@ export default function Nav({ dark, setDark }) {
         className="nav-desktop"
         style={{ display: "flex", gap: "2rem", listStyle: "none", margin: 0, padding: 0 }}
       >
-        {LINKS.map((l) => (
-          <li key={l}>
+        {LINK_IDS.map((id) => (
+          <li key={id}>
             <button
-              onClick={() => scrollTo(l)}
+              onClick={() => scrollTo(id)}
               style={{
                 background: "none",
                 border: "none",
@@ -81,7 +96,7 @@ export default function Nav({ dark, setDark }) {
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
                 color:
-                  active === l
+                  active === id
                     ? ac
                     : dark
                     ? "rgba(255,255,255,0.5)"
@@ -89,10 +104,10 @@ export default function Nav({ dark, setDark }) {
                 transition: "color 0.2s",
                 padding: "4px 0",
                 borderBottom:
-                  active === l ? `1px solid ${ac}` : "1px solid transparent",
+                  active === id ? `1px solid ${ac}` : "1px solid transparent",
               }}
             >
-              {l}
+              {t(`nav.${id}`)}
             </button>
           </li>
         ))}
@@ -100,6 +115,51 @@ export default function Nav({ dark, setDark }) {
 
       {/* Right controls */}
       <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        {/* Language toggle */}
+        <div
+          role="group"
+          aria-label={t("langToggle.ariaLabel")}
+          style={{
+            display: "flex",
+            borderRadius: "50px",
+            overflow: "hidden",
+            border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.14)"}`,
+          }}
+        >
+          {["en", "es"].map((code) => (
+            <button
+              key={code}
+              onClick={() => setLang(code)}
+              lang={code}
+              aria-pressed={lang === code}
+              style={{
+                background:
+                  lang === code
+                    ? ac
+                    : dark
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(0,0,0,0.04)",
+                border: "none",
+                padding: "5px 11px",
+                cursor: lang === code ? "default" : "pointer",
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.65rem",
+                letterSpacing: "0.1em",
+                fontWeight: lang === code ? 700 : 400,
+                color:
+                  lang === code
+                    ? dark ? "#0A0A0E" : "#fff"
+                    : dark
+                    ? "rgba(255,255,255,0.5)"
+                    : "rgba(0,0,0,0.5)",
+                transition: "all 0.2s",
+              }}
+            >
+              {t(`langToggle.${code}`)}
+            </button>
+          ))}
+        </div>
+
         <button
           onClick={() => setDark(!dark)}
           style={{
@@ -133,6 +193,21 @@ export default function Nav({ dark, setDark }) {
         </button>
       </div>
 
+      {/* Scroll progress */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          height: "2px",
+          width: `${progress}%`,
+          background: `linear-gradient(90deg, ${ac}, ${ac}66)`,
+          boxShadow: `0 0 6px ${ac}55`,
+          transition: "width 0.08s linear",
+          borderRadius: "0 1px 1px 0",
+        }}
+      />
+
       {/* Mobile menu */}
       {menuOpen && (
         <div
@@ -149,10 +224,10 @@ export default function Nav({ dark, setDark }) {
             gap: "1.25rem",
           }}
         >
-          {LINKS.map((l) => (
+          {LINK_IDS.map((id) => (
             <button
-              key={l}
-              onClick={() => scrollTo(l)}
+              key={id}
+              onClick={() => scrollTo(id)}
               style={{
                 background: "none",
                 border: "none",
@@ -163,16 +238,57 @@ export default function Nav({ dark, setDark }) {
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color:
-                  active === l
+                  active === id
                     ? ac
                     : dark
                     ? "rgba(255,255,255,0.7)"
                     : "rgba(0,0,0,0.7)",
               }}
             >
-              {l}
+              {t(`nav.${id}`)}
             </button>
           ))}
+
+          {/* Language switcher in mobile menu */}
+          <div
+            role="group"
+            aria-label={t("langToggle.ariaLabel")}
+            style={{ display: "flex", gap: "0.5rem", paddingTop: "0.5rem" }}
+          >
+            {["en", "es"].map((code) => (
+              <button
+                key={code}
+                onClick={() => setLang(code)}
+                lang={code}
+                aria-pressed={lang === code}
+                style={{
+                  background:
+                    lang === code
+                      ? ac
+                      : dark
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.06)",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "6px 14px",
+                  cursor: lang === code ? "default" : "pointer",
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.72rem",
+                  letterSpacing: "0.1em",
+                  fontWeight: lang === code ? 700 : 400,
+                  color:
+                    lang === code
+                      ? dark ? "#0A0A0E" : "#fff"
+                      : dark
+                      ? "rgba(255,255,255,0.6)"
+                      : "rgba(0,0,0,0.6)",
+                  transition: "all 0.2s",
+                }}
+              >
+                {t(`langToggle.${code}`)}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </nav>

@@ -1,9 +1,11 @@
 import useInView from "../hooks/useInView";
 import { SKILLS, SectionLabel, accent } from "../data/portfolio";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function Skills({ dark }) {
   const [ref, vis] = useInView();
   const ac = accent(dark);
+  const { t } = useLanguage();
 
   return (
     <section
@@ -15,7 +17,7 @@ export default function Skills({ dark }) {
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <SectionLabel dark={dark} label="03 — Skills" />
+        <SectionLabel dark={dark} label={t("skills.sectionLabel")} />
 
         <h2
           style={{
@@ -27,8 +29,22 @@ export default function Skills({ dark }) {
             margin: "1rem 0 3rem",
           }}
         >
-          The tools of my craft.
+          {t("skills.headline")}
         </h2>
+
+        <style>{`
+          .skill-chip {
+            transition: all 0.18s ease;
+            cursor: default;
+          }
+          .skill-chip:hover {
+            transform: translateY(-2px);
+            border-color: ${ac}66 !important;
+            color: ${ac} !important;
+            background: ${dark ? "rgba(123,116,80,0.14)" : "rgba(163,158,133,0.14)"} !important;
+            box-shadow: 0 4px 14px ${ac}18;
+          }
+        `}</style>
 
         <div
           style={{
@@ -78,7 +94,7 @@ export default function Skills({ dark }) {
                     margin: 0,
                   }}
                 >
-                  {cat}
+                  {t(`skills.categories.${cat}`) || cat}
                 </h3>
               </div>
 
@@ -87,6 +103,7 @@ export default function Skills({ dark }) {
                 {items.map((s) => (
                   <span
                     key={s}
+                    className="skill-chip"
                     style={{
                       fontFamily: "'DM Mono', monospace",
                       fontSize: "0.72rem",

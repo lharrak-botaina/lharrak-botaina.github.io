@@ -1,34 +1,54 @@
 import { useState } from "react";
+import emailjs from "@emailjs/browser";
 import useInView from "../hooks/useInView";
 import { ME, SectionLabel, bodyStyle, inputStyle, accent } from "../data/portfolio";
+import { useLanguage } from "../i18n/LanguageContext";
+
+const EMAILJS_SERVICE  = "service_j9wizu4";
+const EMAILJS_TEMPLATE = "template_kduozwo";
+const EMAILJS_KEY      = "rqCUNpmbyUZWCjQEF";
 
 export default function Contact({ dark }) {
   const [ref, vis] = useInView();
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const ac = accent(dark);
+  const { t } = useLanguage();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // ── Wire up a real email service here ──────────────────────────────────
-    // Option A – Formspree:   fetch("https://formspree.io/f/YOUR_ID", { method:"POST", body: JSON.stringify(form) })
-    // Option B – EmailJS:     emailjs.send("SERVICE_ID","TEMPLATE_ID", form, "PUBLIC_KEY")
-    // Option C – Your own API endpoint
-    setSent(true);
-    setTimeout(() => setSent(false), 4000);
-    setForm({ name: "", email: "", message: "" });
+    setSending(true);
+    setError("");
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE,
+        EMAILJS_TEMPLATE,
+        { from_name: form.name, from_email: form.email, message: form.message },
+        EMAILJS_KEY
+      );
+      setSubmittedEmail(form.email);
+      setSent(true);
+      setForm({ name: "", email: "", message: "" });
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const socialLinks = [
     { icon: "📧", label: ME.email,                    href: `mailto:${ME.email}` },
-    { icon: "🐙", label: "github.com/alexrivera",     href: ME.github },
-    { icon: "💼", label: "linkedin.com/in/alexrivera", href: ME.linkedin },
+    { icon: "🐙", label: ME.github,     href: ME.github },
+    { icon: "💼", label: ME.linkedin, href: ME.linkedin },
   ];
 
   return (
     <section id="contact" ref={ref} style={{ padding: "8rem 2rem 6rem" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <SectionLabel dark={dark} label="04 — Contact" />
+        <SectionLabel dark={dark} label={t("contact.sectionLabel")} />
 
         <div
           className="contact-grid"
@@ -58,17 +78,14 @@ export default function Contact({ dark }) {
                 marginBottom: "1.5rem",
               }}
             >
-              Let's build
+              {t("contact.headline.0")}
               <br />
-              something
+              {t("contact.headline.1")}
               <br />
-              <span style={{ color: ac }}>remarkable.</span>
+              <span style={{ color: ac }}>{t("contact.headline.2")}</span>
             </h2>
 
-            <p style={bodyStyle(dark)}>
-              Whether it's a product idea, collaboration, or just saying hello —
-              my inbox is always open.
-            </p>
+            <p style={bodyStyle(dark)}>{t("contact.subtext")}</p>
 
             <div
               style={{
@@ -138,9 +155,21 @@ export default function Contact({ dark }) {
                     fontWeight: 700,
                   }}
                 >
-                  Message sent!
+                  {t("contact.successTitle")}
                 </p>
-                <p style={bodyStyle(dark)}>I'll get back to you soon.</p>
+                <p style={bodyStyle(dark)}>{t("contact.successBody")}</p>
+                <p
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: "0.8rem",
+                    letterSpacing: "0.04em",
+                    color: dark ? "rgba(250,250,249,0.55)" : "rgba(10,10,14,0.55)",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  {t("contact.successReply")}{" "}
+                  <span style={{ color: ac }}>{submittedEmail}</span>
+                </p>
               </div>
             ) : (
               <form
@@ -148,8 +177,8 @@ export default function Contact({ dark }) {
                 style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
               >
                 {[
-                  { name: "name",  placeholder: "Your Name",      type: "text" },
-                  { name: "email", placeholder: "your@email.com", type: "email" },
+                  { name: "name",  placeholder: t("contact.namePlaceholder"),   type: "text" },
+                  { name: "email", placeholder: t("contact.emailPlaceholder"),  type: "email" },
                 ].map((f) => (
                   <input
                     key={f.name}
@@ -163,7 +192,7 @@ export default function Contact({ dark }) {
                 ))}
 
                 <textarea
-                  placeholder="Your message…"
+                  placeholder={t("contact.messagePlaceholder")}
                   required
                   rows={5}
                   value={form.message}
@@ -171,27 +200,34 @@ export default function Contact({ dark }) {
                   style={{ ...inputStyle(dark), resize: "vertical" }}
                 />
 
+                {error && (
+                  <p style={{ color: "#ef4444", fontFamily: "'DM Mono', monospace", fontSize: "0.8rem" }}>
+                    {error}
+                  </p>
+                )}
+
                 <button
                   type="submit"
+                  disabled={sending}
                   style={{
                     padding: "14px 32px",
                     borderRadius: "4px",
-                    background: ac,
+                    background: sending ? (dark ? "rgba(245,158,11,0.4)" : "rgba(180,83,9,0.4)") : ac,
                     color: dark ? "#0A0A0E" : "#fff",
                     fontFamily: "'DM Mono', monospace",
                     fontSize: "0.8rem",
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
                     border: "none",
-                    cursor: "pointer",
+                    cursor: sending ? "not-allowed" : "pointer",
                     fontWeight: 600,
                     transition: "all 0.2s",
                     alignSelf: "flex-start",
                   }}
-                  onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
+                  onMouseEnter={(e) => !sending && (e.target.style.transform = "translateY(-2px)")}
                   onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
                 >
-                  Send Message →
+                  {sending ? "Sending…" : t("contact.sendButton")}
                 </button>
               </form>
             )}

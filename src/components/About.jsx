@@ -1,9 +1,11 @@
 import useInView from "../hooks/useInView";
 import { ME, SectionLabel, bodyStyle, accent } from "../data/portfolio";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function About({ dark }) {
   const [ref, vis] = useInView();
   const ac = accent(dark);
+  const { t } = useLanguage();
 
   return (
     <section
@@ -14,8 +16,19 @@ export default function About({ dark }) {
         background: dark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
       }}
     >
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50%       { transform: translateY(-12px); }
+        }
+        @keyframes accentPulse {
+          0%, 100% { opacity: 0.45; transform: translate(12px, 12px); }
+          50%       { opacity: 0.75; transform: translate(15px, 15px); }
+        }
+      `}</style>
+
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <SectionLabel dark={dark} label="01 — About Me" />
+        <SectionLabel dark={dark} label={t("about.sectionLabel")} />
 
         <div
           className="about-grid"
@@ -27,7 +40,7 @@ export default function About({ dark }) {
             alignItems: "start",
           }}
         >
-          {/* Left — headline + avatar */}
+          {/* Left — headline + photo */}
           <div
             style={{
               opacity: vis ? 1 : 0,
@@ -46,30 +59,67 @@ export default function About({ dark }) {
                 marginBottom: "2rem",
               }}
             >
-              Turning complex
+              {t("about.headline.0")}
               <br />
-              problems into
+              {t("about.headline.1")}
               <br />
-              <span style={{ color: ac }}>elegant systems.</span>
+              <span style={{ color: ac }}>{t("about.headline.2")}</span>
             </h2>
 
-            {/* Avatar placeholder — swap src for a real photo */}
-            <div
-              style={{
-                width: "220px",
-                height: "260px",
-                borderRadius: "8px",
-                background: dark
-                  ? "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))"
-                  : "linear-gradient(135deg, rgba(180,83,9,0.1), rgba(180,83,9,0.03))",
-                border: `1px solid ${dark ? "rgba(245,158,11,0.2)" : "rgba(180,83,9,0.15)"}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "5rem",
-              }}
-            >
-              👨‍💻
+            {/* Photo with floating animation + accent frame */}
+            <div style={{ position: "relative", width: "240px", height: "300px" }}>
+              {/* Offset accent border */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "16px",
+                  border: `2px solid ${ac}`,
+                  animation: "accentPulse 4s ease-in-out infinite",
+                  zIndex: 0,
+                }}
+              />
+
+              {/* Image card */}
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  width: "240px",
+                  height: "300px",
+                  animation: "float 5s ease-in-out infinite",
+                  boxShadow: dark
+                    ? `0 24px 64px rgba(245,158,11,0.25), 0 8px 24px rgba(0,0,0,0.55)`
+                    : `0 24px 64px rgba(180,83,9,0.2), 0 8px 24px rgba(0,0,0,0.14)`,
+                }}
+              >
+                <img
+                  src="/img/me.jpeg"
+                  alt="Botaina Lharrak"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                    transition: "transform 0.5s cubic-bezier(0.4,0,0.2,1)",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                />
+                {/* Gradient vignette */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: `linear-gradient(160deg, transparent 55%, ${
+                      dark ? "rgba(5,5,10,0.5)" : "rgba(0,0,0,0.18)"
+                    } 100%)`,
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -81,7 +131,7 @@ export default function About({ dark }) {
               transition: "all 0.9s cubic-bezier(0.4,0,0.2,1) 0.15s",
             }}
           >
-            <p style={bodyStyle(dark)}>{ME.bio}</p>
+            <p style={bodyStyle(dark)}>{t("about.bio")}</p>
 
             {/* Philosophy quote */}
             <div
@@ -94,7 +144,7 @@ export default function About({ dark }) {
               }}
             >
               <p style={{ ...bodyStyle(dark), margin: 0, fontStyle: "italic" }}>
-                "{ME.philosophy}"
+                "{t("about.philosophy")}"
               </p>
             </div>
 

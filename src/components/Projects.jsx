@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import useInView from "../hooks/useInView";
 import { PROJECTS, ALL_TECH, SectionLabel, iconLinkStyle, accent } from "../data/portfolio";
+import { useLanguage } from "../i18n/LanguageContext";
 
 // ─── LIGHTBOX ────────────────────────────────────────────────────────────────
 
@@ -20,7 +21,7 @@ const lbBtn = {
   transition: "all 0.18s",
 };
 
-function MediaLightbox({ project, startIndex = 0, onClose }) {
+function MediaLightbox({ project, startIndex = 0, onClose, t }) {
   const [index, setIndex] = useState(startIndex);
   const media    = project.media || [];
   const cur      = media[index];
@@ -271,7 +272,7 @@ function MediaLightbox({ project, startIndex = 0, onClose }) {
             color: "rgba(255,255,255,0.2)",
           }}
         >
-          ← → arrow keys · ESC to close
+          {t("projects.lightboxHint")}
         </div>
       )}
     </div>
@@ -280,8 +281,22 @@ function MediaLightbox({ project, startIndex = 0, onClose }) {
 
 // ─── PROJECT CARD ────────────────────────────────────────────────────────────
 
-function ProjectCard({ project: p, dark, delay, visible, onOpenMedia }) {
+function ProjectCard({ project: p, dark, delay, visible, onOpenMedia, t }) {
   const [hovered, setHovered] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    const rect = cardRef.current.getBoundingClientRect();
+    const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+    const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+    setTilt({ x: dy * -5, y: dx * 5 });
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setTilt({ x: 0, y: 0 });
+  };
   const hasMedia = p.media?.length > 0;
   const first    = hasMedia ? p.media[0] : null;
   const hasVideo = hasMedia && p.media.some((m) => m.type !== "image");
@@ -298,8 +313,10 @@ function ProjectCard({ project: p, dark, delay, visible, onOpenMedia }) {
 
   return (
     <div
+      ref={cardRef}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       style={{
         borderRadius: "8px",
         overflow: "hidden",
@@ -311,11 +328,14 @@ function ProjectCard({ project: p, dark, delay, visible, onOpenMedia }) {
           : hovered
           ? `linear-gradient(160deg, ${p.color}09, rgba(0,0,0,0.01))`
           : "rgba(0,0,0,0.015)",
-        transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
-        boxShadow: hovered ? `0 20px 40px ${p.color}18` : "none",
+        transition: hovered
+          ? "border-color 0.3s, background 0.3s, box-shadow 0.3s, opacity 0.5s"
+          : "all 0.5s cubic-bezier(0.4,0,0.2,1)",
+        transform: `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(${hovered ? -4 : 0}px)`,
+        boxShadow: hovered ? `0 20px 40px ${p.color}22` : "none",
         opacity: visible ? 1 : 0,
-        transitionDelay: `${delay}ms`,
+        transitionDelay: visible ? `${delay}ms` : "0ms",
+        willChange: "transform",
       }}
     >
       {/* Media preview */}
@@ -351,7 +371,7 @@ function ProjectCard({ project: p, dark, delay, visible, onOpenMedia }) {
           <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center", background: hovered ? `${p.color}22` : "transparent", transition: "background 0.3s" }}>
             {hovered && !hasVideo && (
               <div style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: "6px", padding: "7px 16px", color: "#fff", fontFamily: "'DM Mono', monospace", fontSize: "0.68rem", letterSpacing: "0.1em" }}>
-                View Gallery →
+                {t("projects.viewGallery")}
               </div>
             )}
           </div>
@@ -394,7 +414,7 @@ function ProjectCard({ project: p, dark, delay, visible, onOpenMedia }) {
         </h3>
 
         <p style={{ fontFamily: "'Crimson Pro', Georgia, serif", fontSize: "0.96rem", lineHeight: 1.65, color: dark ? "rgba(250,250,249,0.6)" : "rgba(10,10,14,0.6)", marginBottom: "1rem", minHeight: "3.2em" }}>
-          {p.description}
+          {t(`projects.descriptions.${p.id}`) || p.description}
         </p>
 
         {/* Mini thumbnail strip */}
@@ -473,6 +493,7 @@ export default function Projects({ dark }) {
   const [lightbox, setLightbox] = useState(null);
   const [ref, vis] = useInView(0.05);
   const ac = accent(dark);
+  const { t } = useLanguage();
 
   const filtered = PROJECTS.filter((p) => {
     const okTech   = filter === "All" || p.tech.includes(filter);
@@ -488,7 +509,7 @@ export default function Projects({ dark }) {
   return (
     <section id="projects" ref={ref} style={{ padding: "8rem 2rem" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <SectionLabel dark={dark} label="02 — Projects" />
+        <SectionLabel dark={dark} label={t("projects.sectionLabel")} />
 
         {/* Filter + search bar */}
         <div
@@ -503,24 +524,24 @@ export default function Projects({ dark }) {
           }}
         >
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-            {["All", ...ALL_TECH].map((t) => (
+            {["All", ...ALL_TECH].map((tech) => (
               <button
-                key={t}
-                onClick={() => setFilter(t)}
+                key={tech}
+                onClick={() => setFilter(tech)}
                 style={{
                   padding: "6px 14px",
                   borderRadius: "100px",
                   fontFamily: "'DM Mono', monospace",
                   fontSize: "0.68rem",
                   letterSpacing: "0.08em",
-                  background: filter === t ? ac : dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-                  color: filter === t ? (dark ? "#0A0A0E" : "#fff") : dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)",
+                  background: filter === tech ? ac : dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                  color: filter === tech ? (dark ? "#0A0A0E" : "#fff") : dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)",
                   border: "none",
                   cursor: "pointer",
                   transition: "all 0.18s",
                 }}
               >
-                {t}
+                {tech === "All" ? t("projects.all") : tech}
               </button>
             ))}
           </div>
@@ -528,7 +549,7 @@ export default function Projects({ dark }) {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search projects…"
+            placeholder={t("projects.searchPlaceholder")}
             style={{
               padding: "8px 16px",
               borderRadius: "4px",
@@ -559,6 +580,7 @@ export default function Projects({ dark }) {
               delay={i * 60}
               visible={vis}
               onOpenMedia={(idx) => setLightbox({ project: p, index: idx })}
+              t={t}
             />
           ))}
           {filtered.length === 0 && (
@@ -569,7 +591,7 @@ export default function Projects({ dark }) {
                 fontSize: "0.85rem",
               }}
             >
-              No projects match your search.
+              {t("projects.noResults")}
             </p>
           )}
         </div>
@@ -582,6 +604,7 @@ export default function Projects({ dark }) {
           startIndex={lightbox.index}
           onClose={() => setLightbox(null)}
           dark={dark}
+          t={t}
         />
       )}
     </section>

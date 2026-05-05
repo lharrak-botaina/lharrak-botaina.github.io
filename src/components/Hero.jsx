@@ -1,10 +1,64 @@
 import { useState, useEffect } from "react";
 import { ME, accent } from "../data/portfolio";
+import { useLanguage } from "../i18n/LanguageContext";
+
+const PARTICLES = Array.from({ length: 16 }, (_, i) => ({
+  id: i,
+  x: ((i * 6.18) % 95) + 2,
+  y: ((i * 9.71) % 90) + 2,
+  size: (i % 3) * 1.4 + 1.2,
+  duration: 14 + (i % 6) * 3.5,
+  delay: -(i * 2.3),
+  opacity: 0.2 + (i % 4) * 0.12,
+}));
+
+function CountUp({ to, suffix = "", start = false, duration = 1400 }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let raf;
+    const t0 = performance.now();
+    const animate = (now) => {
+      const p = Math.min((now - t0) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(eased * to));
+      if (p < 1) raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [to, start, duration]);
+  return <>{val}{suffix}</>;
+}
 
 export default function Hero({ dark }) {
   const [vis, setVis] = useState(false);
   useEffect(() => { setTimeout(() => setVis(true), 100); }, []);
   const ac = accent(dark);
+  const { t } = useLanguage();
+
+  const tagline = t("hero.tagline");
+  const [typed, setTyped] = useState("");
+  const [showCursor, setShowCursor] = useState(false);
+
+  useEffect(() => {
+    if (!vis) return;
+    setTyped("");
+    setShowCursor(false);
+    const startDelay = setTimeout(() => {
+      setShowCursor(true);
+      let i = 0;
+      const iv = setInterval(() => {
+        i++;
+        setTyped(tagline.slice(0, i));
+        if (i >= tagline.length) {
+          clearInterval(iv);
+          setTimeout(() => setShowCursor(false), 2000);
+        }
+      }, 22);
+      return () => clearInterval(iv);
+    }, 750);
+    return () => clearTimeout(startDelay);
+  }, [vis, tagline]);
 
   const scrollTo = (id) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -21,6 +75,33 @@ export default function Hero({ dark }) {
         overflow: "hidden",
       }}
     >
+      {/* Floating particles */}
+      <style>{`
+        @keyframes floatParticle {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          33%       { transform: translateY(-28px) translateX(14px); }
+          66%       { transform: translateY(18px) translateX(-10px); }
+        }
+      `}</style>
+      {PARTICLES.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            borderRadius: "50%",
+            background: ac,
+            opacity: p.opacity,
+            animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+
       {/* Grid background */}
       <div
         style={{
@@ -47,7 +128,7 @@ export default function Hero({ dark }) {
           height: "500px",
           borderRadius: "50%",
           background: dark
-            ? "radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)"
+            ? "radial-gradient(circle, rgba(204, 199, 175,0.3) 0%, transparent 70%)"
             : "radial-gradient(circle, rgba(180,83,9,0.08) 0%, transparent 70%)",
           zIndex: 0,
         }}
@@ -77,7 +158,7 @@ export default function Hero({ dark }) {
             transition: "all 0.7s cubic-bezier(0.4,0,0.2,1) 0.1s",
           }}
         >
-          Available for work
+         
         </p>
 
         {/* Name + title */}
@@ -90,14 +171,43 @@ export default function Hero({ dark }) {
             letterSpacing: "-0.03em",
             color: dark ? "#FAFAF9" : "#0A0A0E",
             margin: "0 0 1.5rem",
-            opacity: vis ? 1 : 0,
-            transform: vis ? "translateY(0)" : "translateY(40px)",
-            transition: "all 0.8s cubic-bezier(0.4,0,0.2,1) 0.2s",
           }}
         >
-          {ME.name}
+          {ME.name.split("").map((char, i) => (
+            <span
+              key={i}
+              style={{
+                display: "inline-block",
+                whiteSpace: char === " " ? "pre" : undefined,
+                opacity: vis ? 1 : 0,
+                transform: vis ? "translateY(0)" : "translateY(55px)",
+                transition: `opacity 0.5s ${0.15 + i * 0.042}s, transform 0.65s cubic-bezier(0.4,0,0.2,1) ${0.15 + i * 0.042}s`,
+              }}
+            >
+              {char}
+            </span>
+          ))}
           <br />
-          <span style={{ color: ac }}>{ME.title}</span>
+          <span
+            style={{
+              background: dark
+                ? "linear-gradient(90deg, #7b7450, #ccc7a0, #a39e85, #7b7450)"
+                : "linear-gradient(90deg, #6b6560, #a39e85, #7b7450, #6b6560)",
+              backgroundSize: "250% 100%",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              display: "inline-block",
+              opacity: vis ? 1 : 0,
+              transition: "opacity 0.7s 0.85s",
+              animationName: vis ? "gradientShift" : "none",
+              animationDuration: "5s",
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+            }}
+          >
+            {t("hero.title")}
+          </span>
         </h1>
 
         {/* Tagline */}
@@ -111,10 +221,24 @@ export default function Hero({ dark }) {
             marginBottom: "3rem",
             opacity: vis ? 1 : 0,
             transform: vis ? "translateY(0)" : "translateY(30px)",
-            transition: "all 0.8s cubic-bezier(0.4,0,0.2,1) 0.4s",
+            transition: "opacity 0.5s 0.3s, transform 0.8s cubic-bezier(0.4,0,0.2,1) 0.3s",
+            minHeight: "2.4em",
           }}
         >
-          {ME.tagline}
+          {typed}
+          {showCursor && (
+            <span
+              style={{
+                display: "inline-block",
+                width: "2px",
+                height: "0.9em",
+                background: ac,
+                marginLeft: "2px",
+                verticalAlign: "text-bottom",
+                animation: "blink 0.75s step-start infinite",
+              }}
+            />
+          )}
         </p>
 
         {/* CTAs */}
@@ -142,14 +266,29 @@ export default function Hero({ dark }) {
               cursor: "pointer",
               fontWeight: 600,
               transition: "all 0.2s",
+              position: "relative",
+              overflow: "hidden",
               boxShadow: dark
                 ? "0 0 30px rgba(245,158,11,0.25)"
                 : "0 4px 20px rgba(180,83,9,0.3)",
             }}
-            onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
-            onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
           >
-            View Projects →
+            <span
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "55px",
+                height: "100%",
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                transform: "skewX(-18deg)",
+                animation: "shimmerBtn 3.5s ease-in-out 1.5s infinite",
+                pointerEvents: "none",
+              }}
+            />
+            {t("hero.viewProjects")}
           </button>
 
           <a
@@ -174,7 +313,7 @@ export default function Hero({ dark }) {
               transition: "all 0.2s",
             }}
           >
-            GitHub ↗
+            {t("hero.github")}
           </a>
         </div>
 
@@ -190,10 +329,9 @@ export default function Hero({ dark }) {
           }}
         >
           {[
-            ["5+", "Years of Experience"],
-            ["30+", "Projects Shipped"],
-            ["12", "Open Source Repos"],
-          ].map(([n, l]) => (
+            [3, "+", t("hero.yearsExp")],
+            [10, "+", t("hero.projectsShipped")],
+          ].map(([n, suffix, l]) => (
             <div key={l}>
               <div
                 style={{
@@ -204,7 +342,7 @@ export default function Hero({ dark }) {
                   lineHeight: 1,
                 }}
               >
-                {n}
+                <CountUp to={n} suffix={suffix} start={vis} duration={1600} />
               </div>
               <div
                 style={{
