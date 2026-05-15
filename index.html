@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4EWEQLGPW7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-4EWEQLGPW7');
-    </script>
-
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
@@ -29,6 +19,19 @@
     <meta property="og:type"        content="website" />
 
     <title>Botaina lharrak — Full-Stack Developer</title>
+
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4EWEQLGPW7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4EWEQLGPW7', {
+        'page_path': window.location.pathname,
+        'allow_google_signals': true,
+        'allow_ad_personalization_signals': true
+      });
+    </script>
 
     <!-- Sync <html lang> with persisted/detected language before first paint -->
     <script>
