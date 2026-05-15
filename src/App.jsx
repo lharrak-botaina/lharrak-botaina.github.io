@@ -7,6 +7,7 @@ import Skills  from "./components/Skills";
 import Contact from "./components/Contact";
 import { ME }  from "./data/portfolio";
 import { LanguageProvider, useLanguage } from "./i18n/LanguageContext";
+import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
 
 function CursorGlow({ dark }) {
   const [pos, setPos] = useState({ x: -1000, y: -1000 });
@@ -82,6 +83,7 @@ function Footer({ dark }) {
 
 function AppInner() {
   const [dark, setDark] = useState(true);
+  useGoogleAnalytics();
 
   return (
     <div
