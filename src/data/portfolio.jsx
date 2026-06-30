@@ -130,8 +130,32 @@ export const PROJECTS = [
       },
     ],
   },
+  {
+    id: 6,
+    name: "Casal",
+    tagline: "Youth Employment Case Management Platform",
+    description:
+      "Casal is a multi-role web platform built for NGOs, companies, and administrators to manage youth employment programs. It covers the full journey of a beneficiary — from profile creation and skills assessment, through training enrollment, to final employment tracking.",
+    tech: [
+      "Angular 19", "Angular Material", "PrimeNG", "Bootstrap 5", "TypeScript",
+      "Node.js", "Express", "MongoDB", "Mongoose", "JWT", "REST API", "ngx-charts",
+    ],
+    demo: "https://github.com/lharrak-botaina",
+    repo: "https://github.com/lharrak-botaina",
+    color: "#2563EB",
+    media: [
+      { type: "image", url: "img/00-hero.png",          caption: "Platform overview — hero screen" },
+      { type: "image", url: "img/01-dashboard.png",     caption: "Dynamic stats dashboard with date-range filters" },
+      { type: "image", url: "img/02-usagers.png",       caption: "Youth beneficiary list with bulk Excel import" },
+      { type: "image", url: "img/03-usager-detail.png", caption: "Beneficiary profile — skills, training & employment" },
+      { type: "image", url: "img/04-rapport.png",       caption: "PDF & Word report export" },
+      { type: "image", url: "img/05-offres.png",        caption: "Job offers managed by company portal" },
+      { type: "image", url: "img/06-notifications.png", caption: "Role-based notification center" },
+      { type: "image", url: "img/07-aide.png",          caption: "Help & documentation module" },
+    ],
+  },
   // {
-  //   id: 6,
+  //   id: 7,
   //   name: "Terrarium",
   //   description:
   //     "Browser-based WebGL ecosystem simulator where procedural creatures evolve using neural networks.",

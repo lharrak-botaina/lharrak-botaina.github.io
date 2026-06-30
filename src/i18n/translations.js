@@ -47,6 +47,7 @@ export const translations = {
         3: "Developer CLI for scaffolding microservice architectures with opinionated defaults and Kubernetes manifests.",
         4: "Developed a professional B2B website to showcase high-quality industrial components and automation systems from trusted international brands. The platform is designed to help industrial clients explore reliable solutions that ensure performance, efficiency, and long-term operational value.",
         5: "Open-source authentication microservice with OAuth 2.0, TOTP, passkeys, and audit logging out of the box.",
+        6: "Casal is a multi-role web platform built for NGOs, companies, and administrators to manage youth employment programs. It covers the full journey of a beneficiary — from profile creation and skills assessment, through training enrollment, to final employment tracking. As sole full-stack developer, I designed and built the entire platform: database schema, REST API, Angular frontend, bulk Excel import, PDF/Word export, and role-based access control across three portals.",
       },
     },
 
@@ -128,6 +129,7 @@ export const translations = {
         3: "CLI para desarrolladores que genera arquitecturas de microservicios con configuraciones predeterminadas y manifiestos de Kubernetes.",
         4: "Desarrollé un sitio web B2B profesional para presentar componentes industriales y sistemas de automatización de alta calidad de marcas internacionales de confianza. La plataforma está diseñada para ayudar a clientes industriales a explorar soluciones fiables que garantizan rendimiento, eficiencia y valor operativo a largo plazo.",
         5: "Microservicio de autenticación de código abierto con OAuth 2.0, TOTP, passkeys y registro de auditoría incluidos.",
+        6: "Casal es una plataforma web multi-rol creada para ONG, empresas y administradores para gestionar programas de empleo juvenil. Cubre todo el recorrido de un beneficiario: desde la creación del perfil y la evaluación de competencias, pasando por la inscripción en formaciones, hasta el seguimiento del empleo final. Como desarrolladora full-stack en solitario, diseñé y construí toda la plataforma: esquema de base de datos, API REST, frontend Angular, importación masiva por Excel, exportación a PDF/Word y control de acceso basado en roles en tres portales.",
       },
     },
 
